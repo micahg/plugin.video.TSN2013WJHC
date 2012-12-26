@@ -45,12 +45,14 @@ def createMainMenu(wj):
             title += ' (' + game['progressTime'] + ")"
             if string.find(game['progressTime'], "FINAL") >= 0:
                 is_live = False
+            elif game['gameState'] == 1:
+                is_live=True
         
         if not is_live:    
             url = sys.argv[0] + '?' + urllib.urlencode({'id' : str(game['id'])})
             print url
         else:
-            url = ""
+            url = wj.getLiveGame(str(game['id']))
 
         li = xbmcgui.ListItem(title)
         li.setInfo( type='Video', infoLabels={'Title' : title })
