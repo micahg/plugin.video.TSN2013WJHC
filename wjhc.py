@@ -1,4 +1,4 @@
-import string, urllib, urllib2, json, xml.dom.minidom, cookielib
+import string, re, urllib, urllib2, json, xml.dom.minidom, cookielib
 
 # http://nlds119.cdnak.neulion.com/nlds_vod/tsn/vod/2012/12/22/4/1_4_can_swe_2012_h_whole_1_3000.mp4.m3u8
 
@@ -17,9 +17,8 @@ class wjhc:
         self.GAME_TYPE = 'gt'
         self.GAME_TYPE_CONDENSED = 'condensed'
         self.GAME_TYPE_ARCHIVE = 'archive'
+        self.GAME_TYPE_LIVE = 'live'
 
-        
-        
     def login(self, user, password):
         
         values = { self.LOGIN_USER : user,
@@ -59,7 +58,29 @@ class wjhc:
         result = json.loads(data)
         
         return result['games']
-    
+    def getLiveGame(self, id):
+        """
+        Get a live game
+        """
+        base_live = self.getGame(id, self.GAME_TYPE_LIVE)
+        
+        match = re.search('.*/tsn/(.*?)/.*', base_live, re.IGNORECASE)
+        if match != None:
+            try:
+                hd = base_live.replace('android.m3u8', 's_' + match.group(1) + '_live_game_hd.m3u8')
+                req = urllib2.Request(hd)
+                resp = urllib2.urlopen(req)
+                if resp.getcode() == 200:
+                    return hd
+            except:
+                return base_live
+
+        return base_live
+
+
+        
+        return base_live
+
     def getCondensedGame(self, id):
         """
         Get a condensed game
